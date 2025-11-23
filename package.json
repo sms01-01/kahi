@@ -1,9 +1,13 @@
 {
   "name": "kahina-game",
   "version": "1.0.0",
+  "description": "Jeu d'aventure avec Kahina",
   "type": "module",
   "scripts": {
     "build": "echo 'No build needed for static site'",
-    "dev": "echo 'Open index.html in browser'"
-  }
+    "start": "echo 'Server not required for static site'"
+  },
+  "keywords": ["game", "adventure", "kahina"],
+  "author": "Ton Nom",
+  "license": "MIT"
 }
