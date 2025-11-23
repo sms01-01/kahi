@@ -1,13 +1,13 @@
 {
-  "name": "kahina-game",
+  "name": "kahina-ascension",
   "version": "1.0.0",
-  "description": "Jeu d'aventure avec Kahina",
+  "description": "Jeu mobile d'ascension avec Kahina",
   "type": "module",
   "scripts": {
     "build": "echo 'No build needed for static site'",
-    "start": "echo 'Server not required for static site'"
+    "start": "echo 'Open index.html in browser'"
   },
-  "keywords": ["game", "adventure", "kahina"],
+  "keywords": ["game", "mobile", "platform", "kahina"],
   "author": "Ton Nom",
   "license": "MIT"
 }
