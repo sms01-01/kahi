@@ -28,38 +28,68 @@
         <!-- Oracle -->
         <div class="oracle" style="left: 700px; top: 250px; width: 50px; height: 50px;"></div>
 
-        <!-- Joueur -->
-        <div class="player" id="player"></div>
+        <!-- Joueur - Kahina -->
+        <div class="player" id="player">
+            <div class="kahina-character">
+                <div class="kahina-head"></div>
+                <div class="kahina-body"></div>
+                <div class="kahina-arm left-arm"></div>
+                <div class="kahina-arm right-arm"></div>
+                <div class="kahina-leg left-leg"></div>
+                <div class="kahina-leg right-leg"></div>
+                <div class="kahina-hair"></div>
+                <div class="kahina-dress"></div>
+            </div>
+        </div>
 
-        <!-- Effet de vision -->
+        <!-- Effets visuels -->
         <div class="vision-effect" id="visionEffect"></div>
+        <div class="particles-container" id="particlesContainer"></div>
 
         <!-- Interface utilisateur -->
         <div class="ui">
-            <div class="vision-status" id="visionStatus">🔮 Vision: PRÊTE</div>
-            <div class="instructions">V: Vision | R: Recommencer</div>
+            <div class="vision-status" id="visionStatus">
+                <span class="vision-icon">🔮</span>
+                <span class="vision-text">Vision: PRÊTE</span>
+            </div>
+            <div class="instructions">
+                <span class="instruction">V: Vision</span>
+                <span class="instruction">R: Recommencer</span>
+            </div>
         </div>
 
         <!-- Écran de victoire -->
         <div class="end-screen win-screen" id="winScreen">
-            <h2>🌟 Félicitations Kahina ! 🌟</h2>
-            <p>L'Oracle sacré est retrouvé !</p>
-            <button class="restart-btn" onclick="game.restart()">Recommencer l'Aventure</button>
+            <div class="end-content">
+                <h2>🌟 Félicitations Kahina ! 🌟</h2>
+                <p>L'Oracle sacré est retrouvé ! La magie est restaurée dans le royaume.</p>
+                <button class="restart-btn" onclick="game.restart()">Recommencer l'Aventure</button>
+            </div>
         </div>
 
         <!-- Écran de défaite -->
         <div class="end-screen lose-screen" id="loseScreen">
-            <h2>💫 Kahina a échoué...</h2>
-            <p>Mais chaque échec est une leçon</p>
-            <button class="restart-btn" onclick="game.restart()">Recommencer le Voyage</button>
+            <div class="end-content">
+                <h2>💫 Oh non !</h2>
+                <p>Kahina a besoin de plus d'entraînement. Essaie encore !</p>
+                <button class="restart-btn" onclick="game.restart()">Recommencer le Voyage</button>
+            </div>
         </div>
     </div>
 
-    <div class="controls">
+    <!-- Contrôles tactiles pour mobile -->
+    <div class="touch-controls">
+        <button class="touch-btn touch-left" data-key="ArrowLeft">←</button>
+        <button class="touch-btn touch-right" data-key="ArrowRight">→</button>
+        <button class="touch-btn touch-jump" data-key=" ">Sauter</button>
+        <button class="touch-btn touch-vision" data-key="v">Vision</button>
+    </div>
+
+    <div class="controls-info">
         <p>
-            <span class="key">←</span> <span class="key">→</span> : Déplacer Kahina | 
+            <span class="key">←</span> <span class="key">→</span> : Déplacer | 
             <span class="key">Espace</span> : Sauter | 
-            <span class="key">V</span> : Activer la Vision | 
+            <span class="key">V</span> : Vision | 
             <span class="key">R</span> : Recommencer
         </p>
     </div>
