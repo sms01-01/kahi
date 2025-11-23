@@ -3,99 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kahina - L'Ascension Magique</title>
+    <title>Kahina - Le Sauvetage Magique</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="screen start-screen active" id="startScreen">
-        <div class="start-content">
-            <h1>🌙 Kahina 🌙</h1>
-            <h2>L'Ascension Magique</h2>
-            <div class="character-preview">
-                <div class="kahina-character large">
-                    <div class="kahina-head"></div>
-                    <div class="kahina-body"></div>
-                    <div class="kahina-arm left-arm"></div>
-                    <div class="kahina-arm right-arm"></div>
-                    <div class="kahina-leg left-leg"></div>
-                    <div class="kahina-leg right-leg"></div>
-                    <div class="kahina-hair"></div>
-                    <div class="kahina-dress"></div>
-                    <div class="magic-sparkle"></div>
+    <!-- Écran d'accueil -->
+    <div class="screen active" id="welcomeScreen">
+        <div class="container">
+            <h1>🌙 Kahina - Le Sauvetage Magique 🌙</h1>
+            <div class="story">
+                <p>La princesse Kahina a été capturée par le Sorcier des Télécoms !</p>
+                <p>💫 <strong>Ta mission</strong> : Répondre aux questions de culture générale sur les télécommunications pour la libérer !</p>
+            </div>
+            
+            <div class="player-setup">
+                <input type="text" id="playerName" placeholder="Ton nom de héros..." maxlength="15">
+                <button onclick="joinGame()" class="btn-primary">Rejoindre l'Aventure</button>
+            </div>
+
+            <div class="game-info">
+                <div class="info-card">
+                    <h3>🏆 Classement des Héros</h3>
+                    <div id="leaderboard"></div>
+                </div>
+                
+                <div class="info-card">
+                    <h3>🎮 Comment jouer ?</h3>
+                    <ul>
+                        <li>📝 Questions à choix multiples</li>
+                        <li>⏱️ Plus tu réponds vite, plus tu gagnes de points</li>
+                        <li>🌟 3 niveaux de difficulté</li>
+                        <li>👥 Joue avec d'autres héros en temps réel</li>
+                        <li>🔁 Tu peux passer une question (2 fois par partie)</li>
+                    </ul>
                 </div>
             </div>
-            <button class="start-btn" onclick="game.startGame()">Commencer l'Aventure</button>
-            <div class="instructions">
-                <p>✨ Touche l'écran pour sauter de plateforme en plateforme !</p>
-                <p>🌟 Monte le plus haut possible !</p>
-            </div>
         </div>
     </div>
 
-    <div class="screen game-screen" id="gameScreen">
-        <div class="game-container" id="gameContainer">
-            <!-- Les plateformes seront générées dynamiquement -->
-        </div>
-        
-        <!-- Interface jeu -->
-        <div class="game-ui">
-            <div class="score-display">
-                <div class="score">Score: <span id="currentScore">0</span>m</div>
-                <div class="high-score">Record: <span id="highScore">0</span>m</div>
+    <!-- Écran d'attente -->
+    <div class="screen" id="waitingScreen">
+        <div class="container">
+            <h2>⏳ Préparation du Royaume...</h2>
+            <div class="players-list">
+                <h3>Héros connectés :</h3>
+                <div id="connectedPlayers"></div>
             </div>
-            <div class="level-indicator">Niveau <span id="currentLevel">1</span></div>
+            <div class="countdown" id="countdown">Début dans : 10s</div>
+            <button onclick="startGame()" class="btn-start" id="startBtn">Commencer l'Aventure !</button>
         </div>
-
-        <!-- Joueur -->
-        <div class="player" id="player">
-            <div class="kahina-character">
-                <div class="kahina-head"></div>
-                <div class="kahina-body"></div>
-                <div class="kahina-arm left-arm"></div>
-                <div class="kahina-arm right-arm"></div>
-                <div class="kahina-leg left-leg"></div>
-                <div class="kahina-leg right-leg"></div>
-                <div class="kahina-hair"></div>
-                <div class="kahina-dress"></div>
-                <div class="magic-trail"></div>
-            </div>
-        </div>
-
-        <!-- Éléments de décors -->
-        <div class="clouds-container"></div>
-        <div class="particles-container" id="particlesContainer"></div>
     </div>
 
-    <div class="screen game-over-screen" id="gameOverScreen">
-        <div class="game-over-content">
-            <h2>💫 Bravo Kahina !</h2>
-            <div class="final-stats">
-                <div class="stat">Hauteur atteinte: <span id="finalScore">0</span>m</div>
-                <div class="stat">Niveau: <span id="finalLevel">1</span></div>
-                <div class="stat">Record: <span id="finalHighScore">0</span>m</div>
+    <!-- Écran de jeu -->
+    <div class="screen" id="gameScreen">
+        <div class="game-header">
+            <div class="player-info">
+                <span id="currentPlayer"></span>
+                <div class="score">Score: <span id="currentScore">0</span></div>
             </div>
+            <div class="game-stats">
+                <div class="timer">⏱️ <span id="timer">30</span>s</div>
+                <div class="lives">💫 Passes: <span id="skipCount">2</span></div>
+                <div class="difficulty">Niveau: <span id="currentDifficulty">Facile</span></div>
+            </div>
+        </div>
+
+        <div class="question-container">
+            <div class="question-header">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="question-meta">
+                    Question <span id="questionNumber">1</span>/20
+                </div>
+            </div>
+            
+            <div class="question-card">
+                <h2 id="questionText">Chargement de la question...</h2>
+                <div class="answers-grid" id="answersContainer"></div>
+            </div>
+
+            <button onclick="skipQuestion()" class="btn-skip" id="skipBtn">🔁 Passer cette question (2 restantes)</button>
+        </div>
+
+        <div class="players-progress">
+            <h4>Progression des Héros :</h4>
+            <div id="playersProgress"></div>
+        </div>
+    </div>
+
+    <!-- Écran de résultats -->
+    <div class="screen" id="resultsScreen">
+        <div class="container">
+            <div id="victoryMessage" class="hidden">
+                <h2>🎉 Félicitations ! Tu as sauvé Kahina ! 🎉</h2>
+                <div class="kahina-saved">
+                    <div class="kahina-character large">
+                        <div class="kahina-head"></div>
+                        <div class="kahina-body"></div>
+                        <div class="kahina-arm left-arm"></div>
+                        <div class="kahina-arm right-arm"></div>
+                        <div class="kahina-leg left-leg"></div>
+                        <div class="kahina-leg right-leg"></div>
+                        <div class="kahina-hair"></div>
+                        <div class="kahina-dress"></div>
+                        <div class="magic-sparkle"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="defeatMessage" class="hidden">
+                <h2>💫 Oh non ! Kahina attend encore son sauveur...</h2>
+                <p>Le Sorcier des Télécoms a été plus rapide cette fois !</p>
+            </div>
+
+            <div class="results-card">
+                <h3>📊 Tes Performances</h3>
+                <div class="stats-grid">
+                    <div class="stat">
+                        <span class="stat-value" id="finalScore">0</span>
+                        <span class="stat-label">Score Final</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="correctAnswers">0</span>
+                        <span class="stat-label">Bonnes Réponses</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="timePlayed">0s</span>
+                        <span class="stat-label">Temps Total</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="playerRank">-</span>
+                        <span class="stat-label">Classement</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="final-leaderboard">
+                <h3>🏆 Classement Final</h3>
+                <div id="finalLeaderboard"></div>
+            </div>
+
             <div class="actions">
-                <button class="action-btn replay-btn" onclick="game.restart()">🔄 Rejouer</button>
-                <button class="action-btn menu-btn" onclick="game.showMenu()">🏠 Menu</button>
-            </div>
-            <div class="encouragement">
-                <p>Tu peux faire mieux ! Essaie encore ! ✨</p>
+                <button onclick="playAgain()" class="btn-primary">🔄 Rejouer</button>
+                <button onclick="showWelcome()" class="btn-secondary">🏠 Menu Principal</button>
             </div>
         </div>
-    </div>
-
-    <!-- Contrôles -->
-    <div class="controls">
-        <button class="control-btn left-btn" ontouchstart="game.moveLeft(true)" ontouchend="game.moveLeft(false)">
-            ←
-        </button>
-        <button class="control-btn right-btn" ontouchstart="game.moveRight(true)" ontouchend="game.moveRight(false)">
-            →
-        </button>
-        <button class="control-btn jump-btn" ontouchstart="game.jump()">
-            ⬆️
-        </button>
     </div>
 
     <script src="game.js"></script>
