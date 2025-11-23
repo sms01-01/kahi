@@ -5,139 +5,164 @@
 }
 
 :root {
-    --primary-purple: #8a2be2;
-    --secondary-purple: #9370db;
-    --accent-pink: #da70d6;
-    --vision-blue: #3498db;
-    --gold: #ffd700;
-    --orange: #ff8c00;
-    --dark-bg: #1a1a2e;
-    --darker-bg: #16213e;
-    --platform-color: #7851a9;
-    --text-light: #ecf0f1;
+    --sky-blue: #87CEEB;
+    --sun-yellow: #FFD700;
+    --cloud-white: #FFFFFF;
+    --platform-green: #32CD32;
+    --platform-blue: #4169E1;
+    --platform-purple: #9370DB;
+    --platform-pink: #FF69B4;
+    --character-skin: #FFE0BD;
+    --character-dress: #FF6B8B;
+    --character-hair: #8B4513;
+    --text-dark: #2C3E50;
+    --shadow: rgba(0, 0, 0, 0.2);
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, var(--dark-bg), var(--darker-bg));
-    color: var(--text-light);
-    min-height: 100vh;
-    display: flex;
+    font-family: 'Comic Neue', cursive;
+    background: linear-gradient(135deg, var(--sky-blue), #98FB98);
+    color: var(--text-dark);
+    height: 100vh;
+    overflow: hidden;
+    touch-action: manipulation;
+}
+
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
-    overflow-x: hidden;
+    justify-content: center;
 }
 
-.header {
+.screen.active {
+    display: flex;
+}
+
+/* Écran de démarrage */
+.start-screen {
+    background: linear-gradient(135deg, #FF9A8B, #FF6B8B, #FF97C1);
     text-align: center;
-    margin-bottom: 20px;
-    padding: 0 20px;
+    padding: 20px;
 }
 
-h1 {
-    color: var(--secondary-purple);
-    font-size: clamp(2rem, 5vw, 3rem);
+.start-content h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 3.5em;
+    color: white;
+    text-shadow: 3px 3px 0 var(--shadow);
     margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    background: linear-gradient(45deg, var(--secondary-purple), var(--accent-pink));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
-.subtitle {
-    color: var(--accent-pink);
-    font-size: clamp(1rem, 3vw, 1.3rem);
-    opacity: 0.9;
+.start-content h2 {
+    font-size: 1.8em;
+    color: #FFEAA7;
+    text-shadow: 2px 2px 0 var(--shadow);
+    margin-bottom: 30px;
+}
+
+.character-preview {
+    margin: 30px 0;
+    transform: scale(1.2);
+}
+
+.start-btn {
+    background: linear-gradient(45deg, var(--sun-yellow), #FFA500);
+    border: none;
+    padding: 20px 40px;
+    font-size: 1.5em;
+    font-family: 'Fredoka One', cursive;
+    color: white;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 8px 0 #FF8C00;
+    transition: all 0.2s;
+    margin: 20px 0;
+    text-shadow: 2px 2px 0 var(--shadow);
+}
+
+.start-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 4px 0 #FF8C00;
+}
+
+.instructions {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 20px;
+    margin-top: 20px;
+    box-shadow: 0 5px 15px var(--shadow);
+}
+
+.instructions p {
+    margin: 10px 0;
+    font-size: 1.1em;
+    color: var(--text-dark);
+}
+
+/* Écran de jeu */
+.game-screen {
+    background: linear-gradient(180deg, var(--sky-blue) 0%, #E0F7FA 100%);
+    justify-content: flex-start;
 }
 
 .game-container {
     position: relative;
-    width: min(95vw, 800px);
-    height: min(70vh, 600px);
-    border: 3px solid #333;
-    border-radius: 15px;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
-    margin: 20px 0;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-    background: linear-gradient(180deg, #0f3460 0%, var(--dark-bg) 100%);
 }
 
 /* Plateformes */
 .platform {
     position: absolute;
-    background: linear-gradient(45deg, var(--platform-color), var(--secondary-purple));
-    border-radius: 10px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-    border: 2px solid #9b59b6;
+    border-radius: 20px;
+    box-shadow: 0 6px 12px var(--shadow);
     transition: all 0.3s ease;
+    border: 3px solid white;
 }
 
-.hidden-platform {
-    background: linear-gradient(45deg, var(--vision-blue), #2980b9);
-    border: 2px dashed #87ceeb;
-    display: none;
-    opacity: 0;
-    transform: translateY(10px);
+.platform.normal {
+    background: linear-gradient(45deg, var(--platform-green), #00FF7F);
 }
 
-.vision-active .hidden-platform {
-    display: block;
-    animation: platformReveal 0.5s ease-out forwards, glow 2s ease-in-out infinite alternate;
+.platform.ice {
+    background: linear-gradient(45deg, var(--platform-blue), #00BFFF);
 }
 
-@keyframes platformReveal {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.platform.magic {
+    background: linear-gradient(45deg, var(--platform-purple), #DA70D6);
+    animation: magicGlow 2s infinite alternate;
 }
 
-@keyframes glow {
-    from { 
-        box-shadow: 0 0 10px var(--vision-blue);
-        filter: brightness(1.1);
-    }
-    to { 
-        box-shadow: 0 0 25px var(--vision-blue), 0 0 35px #3498db;
-        filter: brightness(1.3);
-    }
+.platform.bouncy {
+    background: linear-gradient(45deg, var(--platform-pink), #FF1493);
+    animation: bounce 1s infinite alternate;
 }
 
-/* Oracle */
-.oracle {
-    position: absolute;
-    background: radial-gradient(circle at 30% 30%, var(--gold), var(--orange));
-    border-radius: 12px;
-    box-shadow: 0 0 40px var(--gold);
-    animation: pulse 2s ease-in-out infinite, float 3s ease-in-out infinite;
-    border: 3px solid var(--orange);
+@keyframes magicGlow {
+    from { box-shadow: 0 6px 12px var(--shadow); }
+    to { box-shadow: 0 6px 20px #9370DB, 0 0 30px #DA70D6; }
 }
 
-@keyframes pulse {
-    0%, 100% { 
-        transform: scale(1) rotate(0deg);
-        box-shadow: 0 0 30px var(--gold);
-    }
-    50% { 
-        transform: scale(1.1) rotate(5deg);
-        box-shadow: 0 0 50px var(--gold);
-    }
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-10px) rotate(5deg); }
+@keyframes bounce {
+    from { transform: scale(1); }
+    to { transform: scale(1.05); }
 }
 
 /* Personnage Kahina */
 .player {
     position: absolute;
-    width: 40px;
-    height: 60px;
-    transition: left 0.2s ease-out, top 0.2s ease-out;
-    z-index: 10;
+    width: 50px;
+    height: 70px;
+    transition: left 0.2s ease-out, top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    filter: drop-shadow(2px 2px 4px var(--shadow));
 }
 
 .kahina-character {
@@ -148,105 +173,113 @@ h1 {
     transition: transform 0.2s ease;
 }
 
+.kahina-character.large {
+    transform: scale(2);
+}
+
 /* Tête */
 .kahina-head {
     position: absolute;
-    width: 24px;
-    height: 24px;
-    background: #f8d7c2;
+    width: 30px;
+    height: 30px;
+    background: var(--character-skin);
     border-radius: 50%;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    border: 2px solid #e8c7b2;
+    border: 2px solid #E8C7B2;
 }
 
 /* Cheveux */
 .kahina-hair {
     position: absolute;
-    width: 30px;
-    height: 15px;
-    background: #8b4513;
+    width: 36px;
+    height: 20px;
+    background: var(--character-hair);
     border-radius: 50% 50% 0 0;
-    top: -5px;
+    top: -8px;
     left: 50%;
     transform: translateX(-50%);
+}
+
+.kahina-hair::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 15px;
+    background: var(--character-hair);
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 5px;
 }
 
 /* Corps - Robe */
 .kahina-body {
     position: absolute;
-    width: 20px;
+    width: 28px;
     height: 25px;
-    background: linear-gradient(45deg, var(--primary-purple), var(--accent-pink));
-    top: 22px;
+    background: linear-gradient(45deg, var(--character-dress), #FF8FA3);
+    top: 28px;
     left: 50%;
     transform: translateX(-50%);
-    border-radius: 8px 8px 4px 4px;
+    border-radius: 10px 10px 5px 5px;
 }
 
 .kahina-dress {
     position: absolute;
-    width: 24px;
-    height: 15px;
-    background: linear-gradient(45deg, var(--accent-pink), var(--primary-purple));
-    top: 42px;
+    width: 32px;
+    height: 20px;
+    background: linear-gradient(45deg, #FF8FA3, var(--character-dress));
+    top: 48px;
     left: 50%;
     transform: translateX(-50%);
-    border-radius: 8px 8px 12px 12px;
+    border-radius: 8px 8px 15px 15px;
 }
 
 /* Bras */
 .kahina-arm {
     position: absolute;
-    width: 8px;
-    height: 15px;
-    background: #f8d7c2;
-    top: 25px;
-    border-radius: 4px;
+    width: 10px;
+    height: 18px;
+    background: var(--character-skin);
+    top: 32px;
+    border-radius: 5px;
     transform-origin: top center;
 }
 
 .left-arm {
     left: 4px;
-    transform: rotate(-20deg);
+    transform: rotate(-25deg);
 }
 
 .right-arm {
     right: 4px;
-    transform: rotate(20deg);
+    transform: rotate(25deg);
 }
 
 /* Jambes */
 .kahina-leg {
     position: absolute;
-    width: 6px;
-    height: 20px;
-    background: #f8d7c2;
-    top: 52px;
-    border-radius: 3px;
+    width: 8px;
+    height: 22px;
+    background: var(--character-skin);
+    top: 63px;
+    border-radius: 4px;
     transform-origin: top center;
 }
 
 .left-leg {
-    left: 11px;
+    left: 12px;
     transform: rotate(5deg);
 }
 
 .right-leg {
-    right: 11px;
+    right: 12px;
     transform: rotate(-5deg);
 }
 
-/* Animations du personnage */
-.running .kahina-arm {
-    animation: armSwing 0.3s ease-in-out infinite alternate;
-}
-
-.running .kahina-leg {
-    animation: legSwing 0.3s ease-in-out infinite alternate;
-}
-
+/* Animations */
 .jumping .kahina-character {
     transform: scale(1.1);
 }
@@ -256,12 +289,20 @@ h1 {
 }
 
 .jumping .kahina-leg {
-    transform: rotate(10deg);
+    transform: rotate(15deg);
+}
+
+.moving .kahina-arm {
+    animation: armSwing 0.4s ease-in-out infinite alternate;
+}
+
+.moving .kahina-leg {
+    animation: legSwing 0.4s ease-in-out infinite alternate;
 }
 
 @keyframes armSwing {
-    from { transform: rotate(-20deg); }
-    to { transform: rotate(20deg); }
+    from { transform: rotate(-25deg); }
+    to { transform: rotate(25deg); }
 }
 
 @keyframes legSwing {
@@ -269,45 +310,213 @@ h1 {
     to { transform: rotate(-5deg); }
 }
 
-/* Effet de vision */
-.vision-effect {
+/* Effets magiques */
+.magic-sparkle {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at center, rgba(52, 152, 219, 0.1) 0%, transparent 70%);
-    pointer-events: none;
+    width: 8px;
+    height: 8px;
+    background: var(--sun-yellow);
+    border-radius: 50%;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: sparkle 1.5s infinite;
+}
+
+.magic-trail {
+    position: absolute;
+    width: 20px;
+    height: 10px;
+    background: radial-gradient(ellipse, var(--sun-yellow), transparent);
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
     opacity: 0;
-    transition: opacity 0.5s ease;
 }
 
-.vision-active .vision-effect {
-    opacity: 1;
-    animation: visionPulse 2s ease-in-out infinite;
+.jumping .magic-trail {
+    animation: magicTrail 0.5s ease-out;
 }
 
-@keyframes visionPulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.6; }
+@keyframes sparkle {
+    0%, 100% { opacity: 0; transform: translateX(-50%) scale(0); }
+    50% { opacity: 1; transform: translateX(-50%) scale(1); }
 }
 
-/* Particules magiques */
-.particles-container {
+@keyframes magicTrail {
+    0% { opacity: 1; transform: translateX(-50%) scale(1); }
+    100% { opacity: 0; transform: translateX(-50%) scale(0.5) translateY(-20px); }
+}
+
+/* Nuages */
+.cloud {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 5;
+    background: white;
+    border-radius: 50px;
+    box-shadow: 0 5px 15px var(--shadow);
+    opacity: 0.9;
 }
 
+.cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+}
+
+.cloud.small { width: 60px; height: 20px; }
+.cloud.medium { width: 100px; height: 30px; }
+.cloud.large { width: 140px; height: 40px; }
+
+/* Interface jeu */
+.game-ui {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    padding: 0 20px;
+    pointer-events: none;
+}
+
+.score-display {
+    display: flex;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px 20px;
+    border-radius: 25px;
+    box-shadow: 0 5px 15px var(--shadow);
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2em;
+}
+
+.level-indicator {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 215, 0, 0.9);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1em;
+    box-shadow: 0 4px 0 #FF8C00;
+}
+
+/* Écran Game Over */
+.game-over-screen {
+    background: linear-gradient(135deg, #FF9A8B, #FF6B8B);
+}
+
+.game-over-content {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 30px;
+    box-shadow: 0 10px 30px var(--shadow);
+    max-width: 90%;
+}
+
+.game-over-content h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.5em;
+    color: #FF6B8B;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 0 var(--shadow);
+}
+
+.final-stats {
+    margin: 25px 0;
+}
+
+.stat {
+    font-size: 1.3em;
+    margin: 10px 0;
+    color: var(--text-dark);
+    font-weight: bold;
+}
+
+.actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin: 25px 0;
+}
+
+.action-btn {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 20px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 5px 0 #CCC;
+}
+
+.replay-btn {
+    background: linear-gradient(45deg, #32CD32, #00FF7F);
+    color: white;
+}
+
+.menu-btn {
+    background: linear-gradient(45deg, #4169E1, #00BFFF);
+    color: white;
+}
+
+.action-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #CCC;
+}
+
+.encouragement {
+    margin-top: 20px;
+    font-style: italic;
+    color: #666;
+}
+
+/* Contrôles */
+.controls {
+    position: fixed;
+    bottom: 30px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    padding: 0 20px;
+    z-index: 300;
+}
+
+.control-btn {
+    width: 70px;
+    height: 70px;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.8em;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #CCC;
+    transition: all 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 3px 0 #CCC;
+}
+
+.left-btn { background: linear-gradient(45deg, #FF6B8B, #FF97C1); }
+.right-btn { background: linear-gradient(45deg, #4169E1, #00BFFF); }
+.jump-btn { 
+    background: linear-gradient(45deg, var(--sun-yellow), #FFA500);
+    width: 80px;
+    height: 80px;
+}
+
+/* Particules */
 .particle {
     position: absolute;
-    width: 4px;
-    height: 4px;
-    background: var(--vision-blue);
     border-radius: 50%;
     pointer-events: none;
     animation: particleFloat 3s ease-in-out infinite;
@@ -330,299 +539,94 @@ h1 {
     }
 }
 
-/* Interface utilisateur */
-.ui {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    z-index: 20;
-}
-
-.vision-status {
-    background: rgba(0, 0, 0, 0.85);
-    color: var(--vision-blue);
-    padding: 12px 18px;
-    border-radius: 12px;
-    font-family: 'Courier New', monospace;
-    font-size: clamp(14px, 2vw, 16px);
-    margin-bottom: 12px;
-    border: 2px solid var(--vision-blue);
-    backdrop-filter: blur(10px);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.vision-icon {
-    font-size: 1.2em;
-}
-
-.vision-text {
-    font-weight: bold;
-}
-
-.instructions {
-    background: rgba(0, 0, 0, 0.8);
-    color: var(--text-light);
-    padding: 10px 15px;
-    border-radius: 10px;
-    font-size: clamp(12px, 1.8vw, 14px);
-    border: 1px solid #34495e;
-    backdrop-filter: blur(10px);
-    display: flex;
-    gap: 15px;
-}
-
-.instruction {
-    padding: 4px 8px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 4px;
-}
-
-/* Écrans de fin */
-.end-screen {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.95);
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
-    backdrop-filter: blur(15px);
-}
-
-.end-content {
-    text-align: center;
-    padding: 30px;
-    max-width: 90%;
-}
-
-.end-screen h2 {
-    font-size: clamp(2rem, 6vw, 3.5rem);
-    margin-bottom: 20px;
-    text-align: center;
-    line-height: 1.2;
-}
-
-.win-screen h2 {
-    color: var(--gold);
-    text-shadow: 0 0 20px var(--orange);
-    animation: celebrate 2s ease-in-out infinite;
-}
-
-.lose-screen h2 {
-    color: #e74c3c;
-    text-shadow: 0 0 20px #c0392b;
-}
-
-@keyframes celebrate {
-    0%, 100% { transform: scale(1) rotate(0deg); }
-    25% { transform: scale(1.1) rotate(2deg); }
-    50% { transform: scale(1.05) rotate(-2deg); }
-    75% { transform: scale(1.1) rotate(1deg); }
-}
-
-.end-screen p {
-    font-size: clamp(1rem, 3vw, 1.4rem);
-    margin-bottom: 30px;
-    color: var(--text-light);
-    line-height: 1.5;
-}
-
-.restart-btn {
-    padding: clamp(12px, 3vw, 18px) clamp(25px, 5vw, 35px);
-    font-size: clamp(1rem, 3vw, 1.3rem);
-    background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
-    color: white;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-    font-weight: bold;
-    border: 2px solid var(--accent-pink);
-}
-
-.restart-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
-    background: linear-gradient(45deg, var(--secondary-purple), var(--primary-purple));
-}
-
-/* Contrôles tactiles */
-.touch-controls {
-    position: fixed;
-    bottom: 20px;
-    left: 0;
-    right: 0;
-    display: none;
-    justify-content: space-between;
-    padding: 0 20px;
-    z-index: 1000;
-    gap: 10px;
-}
-
-.touch-btn {
-    padding: clamp(15px, 4vw, 20px) clamp(20px, 5vw, 25px);
-    background: rgba(120, 81, 169, 0.9);
-    color: white;
-    border: none;
-    border-radius: 15px;
-    font-size: clamp(16px, 4vw, 20px);
-    font-weight: bold;
-    backdrop-filter: blur(15px);
-    border: 2px solid var(--secondary-purple);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-    transition: all 0.2s ease;
-    min-width: 0;
-    flex: 1;
-}
-
-.touch-btn:active {
-    transform: scale(0.9);
-    background: rgba(147, 112, 219, 0.95);
-}
-
-.touch-left, .touch-right {
-    max-width: 80px;
-}
-
-.touch-jump, .touch-vision {
-    max-width: 120px;
-}
-
-/* Informations des contrôles */
-.controls-info {
-    margin-top: 20px;
-    text-align: center;
-    color: #bdc3c7;
-    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-    padding: 0 20px;
-}
-
-.controls-info p {
-    margin: 5px 0;
-}
-
-.key {
-    display: inline-block;
-    padding: 6px 14px;
-    background: #2c3e50;
-    border-radius: 8px;
-    border: 2px solid #34495e;
-    margin: 0 4px;
-    font-weight: bold;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-    font-size: 0.9em;
-}
-
-/* Media Queries */
+/* Responsive Design */
 @media (max-width: 768px) {
-    .game-container {
-        height: 60vh;
-        border-radius: 10px;
+    .start-content h1 {
+        font-size: 2.8em;
     }
     
-    .touch-controls {
-        display: flex;
+    .start-content h2 {
+        font-size: 1.5em;
     }
     
-    .controls-info {
-        display: none;
+    .start-btn {
+        padding: 18px 35px;
+        font-size: 1.3em;
     }
     
-    .ui {
-        top: 10px;
-        left: 10px;
-        right: 10px;
+    .control-btn {
+        width: 65px;
+        height: 65px;
+        font-size: 1.6em;
     }
     
-    .vision-status, .instructions {
-        width: 100%;
-        justify-content: center;
+    .jump-btn {
+        width: 75px;
+        height: 75px;
     }
     
-    .instructions {
-        flex-direction: column;
-        gap: 8px;
-        text-align: center;
+    .score-display {
+        font-size: 1.1em;
+        padding: 12px 18px;
     }
 }
 
 @media (max-width: 480px) {
-    body {
-        padding: 10px;
+    .start-content h1 {
+        font-size: 2.2em;
     }
     
-    .game-container {
-        height: 55vh;
+    .start-content h2 {
+        font-size: 1.2em;
     }
     
-    .header {
-        margin-bottom: 15px;
+    .character-preview {
+        transform: scale(1);
     }
     
-    .touch-btn {
-        padding: 12px 15px;
-        font-size: 14px;
+    .controls {
+        bottom: 20px;
     }
     
-    .end-content {
-        padding: 20px;
+    .control-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 1.4em;
     }
     
-    .platform {
-        border-radius: 6px;
+    .jump-btn {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .action-btn {
+        width: 200px;
     }
 }
 
-@media (max-height: 600px) and (orientation: landscape) {
-    .game-container {
-        height: 85vh;
-        width: 95vw;
+/* Orientation paysage sur mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .start-content {
+        transform: scale(0.8);
     }
     
-    .header {
-        display: none;
-    }
-    
-    .touch-controls {
+    .controls {
         bottom: 10px;
     }
     
-    .controls-info {
-        display: none;
+    .control-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2em;
     }
-}
-
-/* Support pour les écrans très larges */
-@media (min-width: 1200px) {
-    .game-container {
-        width: 900px;
-        height: 650px;
-    }
-}
-
-/* Mode sombre par défaut du système */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --dark-bg: #0a0a1a;
-        --darker-bg: #050510;
-    }
-}
-
-/* Animation de chargement */
-.loading {
-    opacity: 0;
-    animation: fadeIn 0.5s ease-in forwards;
-}
-
-@keyframes fadeIn {
-    to {
-        opacity: 1;
+    
+    .jump-btn {
+        width: 55px;
+        height: 55px;
     }
 }
