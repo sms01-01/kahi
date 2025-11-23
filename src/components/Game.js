@@ -16,7 +16,7 @@ const Game = () => {
     ],
     oracle: { x: 700, y: 250, width: 50, height: 50 },
     visionActive: false,
-    gameStatus: 'playing', // 'playing', 'win', 'lose'
+    gameStatus: 'playing',
     velocityY: 0,
     onGround: false
   })
@@ -55,21 +55,20 @@ const Game = () => {
 
       prev.platforms.forEach(platform => {
         if ((platform.visible || prev.visionActive) && checkCollision(playerRect, platform)) {
-          // Collision par le dessus
-          if (newVelocityY > 0 && playerRect.y + playerRect.height > platform.y && playerRect.y < platform.y) {
-            newY = platform.y - playerRect.height
+          if (newVelocityY > 0 && playerRect.bottom > platform.y && playerRect.top < platform.y) {
+            newY = platform.y - prev.player.height
             newVelocityY = 0
             newOnGround = true
           }
         }
       })
 
-      // Vérifier si le joueur a gagné
+      // Vérifier la victoire
       if (checkCollision(playerRect, prev.oracle)) {
         return { ...prev, gameStatus: 'win' }
       }
 
-      // Vérifier si le joueur est tombé
+      // Vérifier la défaite (trop bas)
       if (newY > 600) {
         return { ...prev, gameStatus: 'lose' }
       }
@@ -84,30 +83,31 @@ const Game = () => {
   }, [gameState.gameStatus, gameState.visionActive, checkCollision])
 
   const handleKeyPress = useCallback((event) => {
-    if (event.key === 'r' && gameState.gameStatus !== 'playing') {
-      // Redémarrer le jeu
-      setGameState({
-        player: { x: 50, y: 400, width: 30, height: 50 },
-        platforms: [
-          { x: 0, y: 500, width: 300, height: 20, visible: true },
-          { x: 350, y: 500, width: 200, height: 20, visible: true },
-          { x: 600, y: 500, width: 200, height: 20, visible: true },
-          { x: 200, y: 400, width: 100, height: 20, visible: true },
-          { x: 400, y: 350, width: 100, height: 20, visible: true },
-          { x: 600, y: 300, width: 150, height: 20, visible: true },
-          { x: 300, y: 200, width: 80, height: 15, visible: false },
-          { x: 500, y: 250, width: 80, height: 15, visible: false }
-        ],
-        oracle: { x: 700, y: 250, width: 50, height: 50 },
-        visionActive: false,
-        gameStatus: 'playing',
-        velocityY: 0,
-        onGround: false
-      })
+    if (event.key === 'r' || event.key === 'R') {
+      if (gameState.gameStatus !== 'playing') {
+        setGameState({
+          player: { x: 50, y: 400, width: 30, height: 50 },
+          platforms: [
+            { x: 0, y: 500, width: 300, height: 20, visible: true },
+            { x: 350, y: 500, width: 200, height: 20, visible: true },
+            { x: 600, y: 500, width: 200, height: 20, visible: true },
+            { x: 200, y: 400, width: 100, height: 20, visible: true },
+            { x: 400, y: 350, width: 100, height: 20, visible: true },
+            { x: 600, y: 300, width: 150, height: 20, visible: true },
+            { x: 300, y: 200, width: 80, height: 15, visible: false },
+            { x: 500, y: 250, width: 80, height: 15, visible: false }
+          ],
+          oracle: { x: 700, y: 250, width: 50, height: 50 },
+          visionActive: false,
+          gameStatus: 'playing',
+          velocityY: 0,
+          onGround: false
+        })
+      }
       return
     }
 
-    if (event.key === 'v') {
+    if (event.key === 'v' || event.key === 'V') {
       setGameState(prev => ({ ...prev, visionActive: !prev.visionActive }))
       return
     }
@@ -145,7 +145,7 @@ const Game = () => {
   }, [gameState.gameStatus])
 
   useEffect(() => {
-    const gameLoop = setInterval(updateGame, 16) // ~60 FPS
+    const gameLoop = setInterval(updateGame, 16)
     return () => clearInterval(gameLoop)
   }, [updateGame])
 
@@ -154,10 +154,11 @@ const Game = () => {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [handleKeyPress])
 
-  const renderGame = () => {
-    return (
+  return (
+    <div className={styles.container}>
+      <h1>Kahina et l'Oracle Oublié</h1>
+      
       <div className={`${styles.gameContainer} ${gameState.visionActive ? styles.visionActive : ''}`}>
-        {/* Background */}
         <div className={styles.background}></div>
 
         {/* Plateformes */}
@@ -224,13 +225,7 @@ const Game = () => {
           </div>
         )}
       </div>
-    )
-  }
 
-  return (
-    <div className={styles.container}>
-      <h1>Kahina et l'Oracle Oublié</h1>
-      {renderGame()}
       <div className={styles.controls}>
         <p>← → : Déplacer | Espace : Sauter | V : Vision | R : Recommencer</p>
       </div>
