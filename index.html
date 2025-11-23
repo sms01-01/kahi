@@ -4,110 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kahina et l'Oracle Oublié</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background: #1a1a2e;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        h1 {
-            color: #9370db;
-            margin-bottom: 20px;
-        }
-
-        .game-container {
-            position: relative;
-            width: 800px;
-            height: 600px;
-            border: 2px solid #333;
-            overflow: hidden;
-            margin: 20px 0;
-            background: linear-gradient(135deg, #1e1e2e, #2d2d44);
-        }
-
-        .platform {
-            position: absolute;
-            background: linear-gradient(45deg, #7851a9, #9370db);
-            border-radius: 4px;
-        }
-
-        .hidden-platform {
-            background: linear-gradient(45deg, #4682b4, #5f9ea0);
-            border: 2px dashed #87ceeb;
-            display: none;
-        }
-
-        .vision-active .hidden-platform {
-            display: block;
-        }
-
-        .oracle {
-            position: absolute;
-            background: radial-gradient(circle, #ffd700, #ffa500);
-            border-radius: 8px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .player {
-            position: absolute;
-            background: linear-gradient(45deg, #8a2be2, #da70d6);
-            border-radius: 6px;
-            transition: left 0.1s, top 0.1s;
-        }
-
-        .ui {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            font-family: monospace;
-            z-index: 10;
-        }
-
-        .vision-status, .instructions {
-            padding: 5px 10px;
-            background: rgba(0,0,0,0.7);
-            border-radius: 4px;
-            margin-bottom: 10px;
-        }
-
-        .end-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-        }
-
-        .controls {
-            margin-top: 20px;
-            color: #ccc;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Kahina et l'Oracle Oublié</h1>
+    <div class="header">
+        <h1>Kahina et l'Oracle Oublié</h1>
+        <div class="subtitle">Utilise ton pouvoir de vision pour retrouver l'Oracle sacré</div>
+    </div>
     
     <div class="game-container" id="gameContainer">
+        <!-- Plateformes visibles -->
         <div class="platform" style="left: 0px; top: 500px; width: 300px; height: 20px;"></div>
         <div class="platform" style="left: 350px; top: 500px; width: 200px; height: 20px;"></div>
         <div class="platform" style="left: 600px; top: 500px; width: 200px; height: 20px;"></div>
@@ -119,178 +25,45 @@
         <div class="platform hidden-platform" style="left: 300px; top: 200px; width: 80px; height: 15px;"></div>
         <div class="platform hidden-platform" style="left: 500px; top: 250px; width: 80px; height: 15px;"></div>
 
+        <!-- Oracle -->
         <div class="oracle" style="left: 700px; top: 250px; width: 50px; height: 50px;"></div>
-        <div class="player" id="player" style="left: 50px; top: 400px; width: 30px; height: 50px;"></div>
 
+        <!-- Joueur -->
+        <div class="player" id="player"></div>
+
+        <!-- Effet de vision -->
+        <div class="vision-effect" id="visionEffect"></div>
+
+        <!-- Interface utilisateur -->
         <div class="ui">
-            <div class="vision-status" id="visionStatus">Vision: READY</div>
+            <div class="vision-status" id="visionStatus">🔮 Vision: PRÊTE</div>
             <div class="instructions">V: Vision | R: Recommencer</div>
         </div>
 
-        <div class="end-screen" id="winScreen">
-            <h2>Félicitations Kahina !</h2>
-            <p>L'Oracle est retrouvé !</p>
-            <button onclick="restartGame()">Recommencer</button>
+        <!-- Écran de victoire -->
+        <div class="end-screen win-screen" id="winScreen">
+            <h2>🌟 Félicitations Kahina ! 🌟</h2>
+            <p>L'Oracle sacré est retrouvé !</p>
+            <button class="restart-btn" onclick="game.restart()">Recommencer l'Aventure</button>
         </div>
 
-        <div class="end-screen" id="loseScreen">
-            <h2>Kahina a échoué...</h2>
-            <button onclick="restartGame()">Recommencer</button>
+        <!-- Écran de défaite -->
+        <div class="end-screen lose-screen" id="loseScreen">
+            <h2>💫 Kahina a échoué...</h2>
+            <p>Mais chaque échec est une leçon</p>
+            <button class="restart-btn" onclick="game.restart()">Recommencer le Voyage</button>
         </div>
     </div>
 
     <div class="controls">
-        <p>← → : Déplacer | Espace : Sauter | V : Vision | R : Recommencer</p>
+        <p>
+            <span class="key">←</span> <span class="key">→</span> : Déplacer Kahina | 
+            <span class="key">Espace</span> : Sauter | 
+            <span class="key">V</span> : Activer la Vision | 
+            <span class="key">R</span> : Recommencer
+        </p>
     </div>
 
-    <script>
-        class KahinaGame {
-            constructor() {
-                this.player = { x: 50, y: 400, width: 30, height: 50 };
-                this.velocityY = 0;
-                this.onGround = false;
-                this.visionActive = false;
-                this.gameStatus = 'playing';
-                
-                this.GRAVITY = 0.8;
-                this.JUMP_POWER = -15;
-                this.SPEED = 5;
-
-                this.keys = {};
-                this.init();
-            }
-
-            init() {
-                document.addEventListener('keydown', (e) => this.handleKeyDown(e));
-                document.addEventListener('keyup', (e) => this.keys[e.key] = false);
-                this.gameLoop();
-            }
-
-            handleKeyDown(e) {
-                this.keys[e.key] = true;
-
-                if (e.key === 'r' || e.key === 'R') {
-                    this.restartGame();
-                }
-                if (e.key === 'v' || e.key === 'V') {
-                    this.toggleVision();
-                }
-            }
-
-            toggleVision() {
-                this.visionActive = !this.visionActive;
-                const gameContainer = document.getElementById('gameContainer');
-                const visionStatus = document.getElementById('visionStatus');
-                
-                if (this.visionActive) {
-                    gameContainer.classList.add('vision-active');
-                    visionStatus.textContent = 'Vision: ACTIVE';
-                } else {
-                    gameContainer.classList.remove('vision-active');
-                    visionStatus.textContent = 'Vision: READY';
-                }
-            }
-
-            checkCollision(rect1, rect2) {
-                return rect1.x < rect2.x + rect2.width &&
-                       rect1.x + rect1.width > rect2.x &&
-                       rect1.y < rect2.y + rect2.height &&
-                       rect1.y + rect1.height > rect2.y;
-            }
-
-            update() {
-                if (this.gameStatus !== 'playing') return;
-
-                // Mouvement horizontal
-                if (this.keys['ArrowLeft']) {
-                    this.player.x = Math.max(0, this.player.x - this.SPEED);
-                }
-                if (this.keys['ArrowRight']) {
-                    this.player.x = Math.min(770, this.player.x + this.SPEED);
-                }
-
-                // Saut
-                if (this.keys[' '] && this.onGround) {
-                    this.velocityY = this.JUMP_POWER;
-                    this.onGround = false;
-                }
-
-                // Gravité
-                this.velocityY += this.GRAVITY;
-                this.player.y += this.velocityY;
-
-                // Collisions avec les plateformes
-                this.onGround = false;
-                const platforms = document.querySelectorAll('.platform:not(.hidden-platform), .vision-active .hidden-platform');
-                
-                platforms.forEach(platform => {
-                    const rect = platform.getBoundingClientRect();
-                    const gameRect = document.getElementById('gameContainer').getBoundingClientRect();
-                    
-                    const platformObj = {
-                        x: rect.left - gameRect.left,
-                        y: rect.top - gameRect.top,
-                        width: rect.width,
-                        height: rect.height
-                    };
-
-                    if (this.checkCollision(this.player, platformObj)) {
-                        if (this.velocityY > 0 && this.player.y + this.player.height > platformObj.y && this.player.y < platformObj.y) {
-                            this.player.y = platformObj.y - this.player.height;
-                            this.velocityY = 0;
-                            this.onGround = true;
-                        }
-                    }
-                });
-
-                // Vérifier l'oracle
-                const oracle = { x: 700, y: 250, width: 50, height: 50 };
-                if (this.checkCollision(this.player, oracle)) {
-                    this.gameStatus = 'win';
-                    document.getElementById('winScreen').style.display = 'flex';
-                }
-
-                // Vérifier si tombé
-                if (this.player.y > 600) {
-                    this.gameStatus = 'lose';
-                    document.getElementById('loseScreen').style.display = 'flex';
-                }
-
-                // Mettre à jour l'affichage
-                document.getElementById('player').style.left = this.player.x + 'px';
-                document.getElementById('player').style.top = this.player.y + 'px';
-            }
-
-            gameLoop() {
-                this.update();
-                requestAnimationFrame(() => this.gameLoop());
-            }
-
-            restartGame() {
-                this.player = { x: 50, y: 400, width: 30, height: 50 };
-                this.velocityY = 0;
-                this.onGround = false;
-                this.visionActive = false;
-                this.gameStatus = 'playing';
-                
-                document.getElementById('winScreen').style.display = 'none';
-                document.getElementById('loseScreen').style.display = 'none';
-                document.getElementById('gameContainer').classList.remove('vision-active');
-                document.getElementById('visionStatus').textContent = 'Vision: READY';
-                document.getElementById('player').style.left = '50px';
-                document.getElementById('player').style.top = '400px';
-            }
-        }
-
-        // Démarrer le jeu
-        function restartGame() {
-            new KahinaGame();
-        }
-
-        // Initialiser le jeu au chargement
-        window.onload = () => {
-            new KahinaGame();
-        };
-    </script>
+    <script src="game.js"></script>
 </body>
 </html>
