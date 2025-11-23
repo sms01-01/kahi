@@ -4,19 +4,27 @@ class KahinaGame {
         this.playerElement = document.getElementById('player');
         this.visionStatus = document.getElementById('visionStatus');
         this.visionEffect = document.getElementById('visionEffect');
+        this.particlesContainer = document.getElementById('particlesContainer');
         this.winScreen = document.getElementById('winScreen');
         this.loseScreen = document.getElementById('loseScreen');
         
         // Constantes du jeu
         this.GRAVITY = 0.8;
-        this.JUMP_POWER = -15;
-        this.MOVE_SPEED = 5;
-        this.PLAYER_WIDTH = 30;
-        this.PLAYER_HEIGHT = 50;
+        this.JUMP_POWER = -16;
+        this.MOVE_SPEED = 6;
+        this.PLAYER_WIDTH = 40;
+        this.PLAYER_HEIGHT = 60;
+        
+        // État du jeu
+        this.isRunning = false;
+        this.isJumping = false;
+        this.lastDirection = 'right';
+        this.particles = [];
         
         this.resetGame();
         this.setupEventListeners();
         this.gameLoop();
+        this.createParticles();
     }
 
     resetGame() {
@@ -24,36 +32,37 @@ class KahinaGame {
             x: 50, 
             y: 400, 
             width: this.PLAYER_WIDTH, 
-            height: this.PLAYER_HEIGHT 
+            height: this.PLAYER_HEIGHT,
+            velocityX: 0,
+            velocityY: 0
         };
         this.velocityY = 0;
         this.onGround = false;
         this.visionActive = false;
-        this.gameStatus = 'playing'; // 'playing', 'win', 'lose'
+        this.gameStatus = 'playing';
         this.keys = {};
+        this.isRunning = false;
+        this.isJumping = false;
         
         this.updatePlayerPosition();
         this.hideEndScreens();
-        this.gameContainer.classList.remove('vision-active');
-        this.visionStatus.textContent = '🔮 Vision: PRÊTE';
-        this.visionStatus.style.color = '#87ceeb';
+        this.deactivateVision();
+        this.updatePlayerAppearance();
     }
 
     setupEventListeners() {
+        // Clavier
         document.addEventListener('keydown', (e) => {
             this.keys[e.key] = true;
             
-            // Redémarrer le jeu
             if (e.key === 'r' || e.key === 'R') {
                 this.restart();
             }
             
-            // Activer/désactiver la vision
             if (e.key === 'v' || e.key === 'V') {
                 this.toggleVision();
             }
             
-            // Empêcher le défilement avec la barre d'espace
             if (e.key === ' ') {
                 e.preventDefault();
             }
@@ -61,68 +70,54 @@ class KahinaGame {
 
         document.addEventListener('keyup', (e) => {
             this.keys[e.key] = false;
+            
+            // Arrêter l'animation de course
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                this.isRunning = false;
+                this.updatePlayerAppearance();
+            }
         });
 
-        // Support tactile pour mobile
+        // Contrôles tactiles
         this.setupTouchControls();
+        
+        // Redimensionnement
+        window.addEventListener('resize', () => this.handleResize());
     }
 
     setupTouchControls() {
-        const leftBtn = document.createElement('button');
-        const rightBtn = document.createElement('button');
-        const jumpBtn = document.createElement('button');
-        const visionBtn = document.createElement('button');
+        const touchButtons = document.querySelectorAll('.touch-btn');
         
-        this.createTouchButton(leftBtn, '←', 'left', 'touch-left');
-        this.createTouchButton(rightBtn, '→', 'right', 'touch-right');
-        this.createTouchButton(jumpBtn, 'Saut', ' ', 'touch-jump');
-        this.createTouchButton(visionBtn, 'Vision', 'v', 'touch-vision');
-        
-        document.body.appendChild(leftBtn);
-        document.body.appendChild(rightBtn);
-        document.body.appendChild(jumpBtn);
-        document.body.appendChild(visionBtn);
+        touchButtons.forEach(button => {
+            const key = button.getAttribute('data-key');
+            
+            button.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                this.keys[key] = true;
+                
+                // Animation de pression
+                button.style.transform = 'scale(0.85)';
+            });
+            
+            button.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.keys[key] = false;
+                
+                // Animation de relâchement
+                button.style.transform = 'scale(1)';
+                
+                // Arrêter la course si c'est une touche de direction
+                if (key === 'ArrowLeft' || key === 'ArrowRight') {
+                    this.isRunning = false;
+                    this.updatePlayerAppearance();
+                }
+            });
+        });
     }
 
-    createTouchButton(button, text, key, className) {
-        button.textContent = text;
-        button.className = `touch-btn ${className}`;
-        button.style.cssText = `
-            position: fixed;
-            padding: 15px 20px;
-            background: rgba(120, 81, 169, 0.8);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-            border: 2px solid #9370db;
-        `;
-        
-        if (className === 'touch-left') {
-            button.style.bottom = '20px';
-            button.style.left = '20px';
-        } else if (className === 'touch-right') {
-            button.style.bottom = '20px';
-            button.style.left = '100px';
-        } else if (className === 'touch-jump') {
-            button.style.bottom = '20px';
-            button.style.right = '100px';
-        } else if (className === 'touch-vision') {
-            button.style.bottom = '20px';
-            button.style.right = '20px';
-        }
-        
-        button.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            this.keys[key] = true;
-        });
-        
-        button.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            this.keys[key] = false;
-        });
+    handleResize() {
+        // Ajuster les particules si nécessaire
+        this.adjustParticles();
     }
 
     toggleVision() {
@@ -131,21 +126,23 @@ class KahinaGame {
         this.visionActive = !this.visionActive;
         
         if (this.visionActive) {
-            this.gameContainer.classList.add('vision-active');
-            this.visionStatus.textContent = '🔮 Vision: ACTIVÉE';
-            this.visionStatus.style.color = '#00ff88';
+            this.activateVision();
         } else {
-            this.gameContainer.classList.remove('vision-active');
-            this.visionStatus.textContent = '🔮 Vision: PRÊTE';
-            this.visionStatus.style.color = '#87ceeb';
+            this.deactivateVision();
         }
     }
 
-    checkCollision(rect1, rect2) {
-        return rect1.x < rect2.x + rect2.width &&
-               rect1.x + rect1.width > rect2.x &&
-               rect1.y < rect2.y + rect2.height &&
-               rect1.y + rect1.height > rect2.y;
+    activateVision() {
+        this.gameContainer.classList.add('vision-active');
+        this.visionStatus.querySelector('.vision-text').textContent = 'Vision: ACTIVÉE';
+        this.visionStatus.style.color = '#00ff88';
+        this.createVisionParticles();
+    }
+
+    deactivateVision() {
+        this.gameContainer.classList.remove('vision-active');
+        this.visionStatus.querySelector('.vision-text').textContent = 'Vision: PRÊTE';
+        this.visionStatus.style.color = '#87ceeb';
     }
 
     update() {
@@ -156,27 +153,48 @@ class KahinaGame {
         this.checkPlatformCollisions();
         this.checkGameConditions();
         this.updatePlayerPosition();
+        this.updatePlayerAppearance();
+        this.updateParticles();
     }
 
     handleMovement() {
+        let moving = false;
+        this.player.velocityX = 0;
+
         // Mouvement horizontal
         if (this.keys['ArrowLeft'] || this.keys['left']) {
-            this.player.x = Math.max(0, this.player.x - this.MOVE_SPEED);
+            this.player.velocityX = -this.MOVE_SPEED;
+            this.lastDirection = 'left';
+            moving = true;
         }
         if (this.keys['ArrowRight'] || this.keys['right']) {
-            this.player.x = Math.min(800 - this.player.width, this.player.x + this.MOVE_SPEED);
+            this.player.velocityX = this.MOVE_SPEED;
+            this.lastDirection = 'right';
+            moving = true;
+        }
+
+        this.player.x += this.player.velocityX;
+        this.player.x = Math.max(0, Math.min(800 - this.player.width, this.player.x));
+
+        // Mettre à jour l'état de course
+        if (moving !== this.isRunning) {
+            this.isRunning = moving;
         }
 
         // Saut
         if ((this.keys[' '] || this.keys['jump']) && this.onGround) {
             this.velocityY = this.JUMP_POWER;
             this.onGround = false;
+            this.isJumping = true;
         }
     }
 
     applyPhysics() {
         this.velocityY += this.GRAVITY;
         this.player.y += this.velocityY;
+        
+        // Mettre à jour l'état de saut
+        this.isJumping = this.velocityY < 0 || !this.onGround;
     }
 
     checkPlatformCollisions() {
@@ -193,19 +211,34 @@ class KahinaGame {
             };
 
             if (this.checkCollision(this.player, platformRect)) {
-                // Collision par le dessus (atterrissage)
-                if (this.velocityY > 0 && this.player.y + this.player.height > platformRect.y) {
+                // Collision par le dessus
+                if (this.velocityY > 0 && this.player.y + this.player.height > platformRect.y + 5) {
                     this.player.y = platformRect.y - this.player.height;
                     this.velocityY = 0;
                     this.onGround = true;
+                    this.isJumping = false;
                 }
-                // Collision par le dessous (tête)
+                // Collision par le dessous
                 else if (this.velocityY < 0 && this.player.y < platformRect.y + platformRect.height) {
                     this.player.y = platformRect.y + platformRect.height;
                     this.velocityY = 0;
                 }
+                // Collision latérale
+                else if (this.player.velocityX !== 0) {
+                    if (this.player.x + this.player.width > platformRect.x && 
+                        this.player.x < platformRect.x + platformRect.width) {
+                        this.player.x -= this.player.velocityX;
+                    }
+                }
             }
         });
+    }
+
+    checkCollision(rect1, rect2) {
+        return rect1.x < rect2.x + rect2.width &&
+               rect1.x + rect1.width > rect2.x &&
+               rect1.y < rect2.y + rect2.height &&
+               rect1.y + rect1.height > rect2.y;
     }
 
     checkGameConditions() {
@@ -218,6 +251,7 @@ class KahinaGame {
         if (this.checkCollision(this.player, oracle)) {
             this.gameStatus = 'win';
             this.winScreen.style.display = 'flex';
+            this.createCelebrationParticles();
         }
     }
 
@@ -233,9 +267,109 @@ class KahinaGame {
         this.playerElement.style.top = this.player.y + 'px';
     }
 
+    updatePlayerAppearance() {
+        const character = this.playerElement.querySelector('.kahina-character');
+        
+        // Réinitialiser les classes
+        character.classList.remove('running', 'jumping', 'facing-left', 'facing-right');
+        
+        // Direction
+        character.classList.add(`facing-${this.lastDirection}`);
+        
+        // État de mouvement
+        if (this.isJumping) {
+            character.classList.add('jumping');
+        } else if (this.isRunning) {
+            character.classList.add('running');
+        }
+        
+        // Inverser visuellement pour la gauche
+        if (this.lastDirection === 'left') {
+            character.style.transform = 'scaleX(-1)';
+        } else {
+            character.style.transform = 'scaleX(1)';
+        }
+    }
+
     hideEndScreens() {
         this.winScreen.style.display = 'none';
         this.loseScreen.style.display = 'none';
+    }
+
+    createParticles() {
+        // Créer des particules d'ambiance
+        for (let i = 0; i < 15; i++) {
+            this.createParticle(true);
+        }
+    }
+
+    createParticle(isAmbient = false) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        const size = Math.random() * 3 + 2;
+        const left = Math.random() * 100;
+        const delay = Math.random() * 5;
+        const duration = Math.random() * 4 + 2;
+        
+        particle.style.cssText = `
+            width: ${size}px;
+            height: ${size}px;
+            left: ${left}%;
+            top: ${isAmbient ? Math.random() * 100 : 100}%;
+            background: ${this.getRandomParticleColor()};
+            animation-delay: ${delay}s;
+            animation-duration: ${duration}s;
+        `;
+        
+        this.particlesContainer.appendChild(particle);
+        
+        // Supprimer la particule après l'animation
+        setTimeout(() => {
+            if (particle.parentNode) {
+                particle.parentNode.removeChild(particle);
+            }
+        }, duration * 1000 + delay * 1000);
+        
+        if (isAmbient) {
+            // Recréer des particules d'ambiance continuellement
+            setTimeout(() => this.createParticle(true), (duration + delay) * 1000);
+        }
+    }
+
+    createVisionParticles() {
+        // Créer un effet de particules spécial pour la vision
+        for (let i = 0; i < 10; i++) {
+            setTimeout(() => this.createParticle(), i * 100);
+        }
+    }
+
+    createCelebrationParticles() {
+        // Créer des particules de célébration
+        for (let i = 0; i < 30; i++) {
+            setTimeout(() => {
+                this.createParticle();
+            }, i * 50);
+        }
+    }
+
+    getRandomParticleColor() {
+        const colors = [
+            '#3498db', '#87ceeb', '#00ff88', '#9370db', '#da70d6', '#ffd700'
+        ];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    updateParticles() {
+        // Mettre à jour la logique des particules si nécessaire
+    }
+
+    adjustParticles() {
+        // Ajuster les particules au redimensionnement
+        const particles = this.particlesContainer.querySelectorAll('.particle');
+        particles.forEach(particle => {
+            particle.style.left = Math.random() * 100 + '%';
+        });
     }
 
     gameLoop() {
@@ -248,35 +382,30 @@ class KahinaGame {
     }
 }
 
-// Styles pour les boutons tactiles
-const touchStyles = document.createElement('style');
-touchStyles.textContent = `
-    .touch-btn {
-        transition: all 0.2s ease;
-        touch-action: manipulation;
-    }
-    
-    .touch-btn:active {
-        transform: scale(0.9);
-        background: rgba(147, 112, 219, 0.9) !important;
-    }
-    
-    @media (max-width: 768px) {
-        .touch-btn {
-            padding: 20px 25px !important;
-            font-size: 18px !important;
-        }
-    }
-`;
-document.head.appendChild(touchStyles);
-
 // Démarrer le jeu quand la page est chargée
 let game;
 window.addEventListener('load', () => {
-    game = new KahinaGame();
+    // Petit délai pour le chargement
+    setTimeout(() => {
+        game = new KahinaGame();
+        document.body.classList.add('loading');
+    }, 100);
 });
 
-// Empêcher le menu contextuel sur mobile
-document.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-});
+// Empêcher les actions par défaut
+document.addEventListener('touchmove', (e) => {
+    if (e.target.classList.contains('touch-btn')) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
+// Détection des appareils mobiles
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+// Afficher/masquer les contrôles tactiles
+if (isMobileDevice()) {
+    document.querySelector('.touch-controls').style.display = 'flex';
+    document.querySelector('.controls-info').style.display = 'none';
+}
