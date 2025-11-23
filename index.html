@@ -3,32 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kahina et l'Oracle Oublié</title>
+    <title>Kahina - L'Ascension Magique</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Fredoka+One&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="header">
-        <h1>Kahina et l'Oracle Oublié</h1>
-        <div class="subtitle">Utilise ton pouvoir de vision pour retrouver l'Oracle sacré</div>
+    <div class="screen start-screen active" id="startScreen">
+        <div class="start-content">
+            <h1>🌙 Kahina 🌙</h1>
+            <h2>L'Ascension Magique</h2>
+            <div class="character-preview">
+                <div class="kahina-character large">
+                    <div class="kahina-head"></div>
+                    <div class="kahina-body"></div>
+                    <div class="kahina-arm left-arm"></div>
+                    <div class="kahina-arm right-arm"></div>
+                    <div class="kahina-leg left-leg"></div>
+                    <div class="kahina-leg right-leg"></div>
+                    <div class="kahina-hair"></div>
+                    <div class="kahina-dress"></div>
+                    <div class="magic-sparkle"></div>
+                </div>
+            </div>
+            <button class="start-btn" onclick="game.startGame()">Commencer l'Aventure</button>
+            <div class="instructions">
+                <p>✨ Touche l'écran pour sauter de plateforme en plateforme !</p>
+                <p>🌟 Monte le plus haut possible !</p>
+            </div>
+        </div>
     </div>
-    
-    <div class="game-container" id="gameContainer">
-        <!-- Plateformes visibles -->
-        <div class="platform" style="left: 0px; top: 500px; width: 300px; height: 20px;"></div>
-        <div class="platform" style="left: 350px; top: 500px; width: 200px; height: 20px;"></div>
-        <div class="platform" style="left: 600px; top: 500px; width: 200px; height: 20px;"></div>
-        <div class="platform" style="left: 200px; top: 400px; width: 100px; height: 20px;"></div>
-        <div class="platform" style="left: 400px; top: 350px; width: 100px; height: 20px;"></div>
-        <div class="platform" style="left: 600px; top: 300px; width: 150px; height: 20px;"></div>
+
+    <div class="screen game-screen" id="gameScreen">
+        <div class="game-container" id="gameContainer">
+            <!-- Les plateformes seront générées dynamiquement -->
+        </div>
         
-        <!-- Plateformes cachées -->
-        <div class="platform hidden-platform" style="left: 300px; top: 200px; width: 80px; height: 15px;"></div>
-        <div class="platform hidden-platform" style="left: 500px; top: 250px; width: 80px; height: 15px;"></div>
+        <!-- Interface jeu -->
+        <div class="game-ui">
+            <div class="score-display">
+                <div class="score">Score: <span id="currentScore">0</span>m</div>
+                <div class="high-score">Record: <span id="highScore">0</span>m</div>
+            </div>
+            <div class="level-indicator">Niveau <span id="currentLevel">1</span></div>
+        </div>
 
-        <!-- Oracle -->
-        <div class="oracle" style="left: 700px; top: 250px; width: 50px; height: 50px;"></div>
-
-        <!-- Joueur - Kahina -->
+        <!-- Joueur -->
         <div class="player" id="player">
             <div class="kahina-character">
                 <div class="kahina-head"></div>
@@ -39,59 +58,44 @@
                 <div class="kahina-leg right-leg"></div>
                 <div class="kahina-hair"></div>
                 <div class="kahina-dress"></div>
+                <div class="magic-trail"></div>
             </div>
         </div>
 
-        <!-- Effets visuels -->
-        <div class="vision-effect" id="visionEffect"></div>
+        <!-- Éléments de décors -->
+        <div class="clouds-container"></div>
         <div class="particles-container" id="particlesContainer"></div>
+    </div>
 
-        <!-- Interface utilisateur -->
-        <div class="ui">
-            <div class="vision-status" id="visionStatus">
-                <span class="vision-icon">🔮</span>
-                <span class="vision-text">Vision: PRÊTE</span>
+    <div class="screen game-over-screen" id="gameOverScreen">
+        <div class="game-over-content">
+            <h2>💫 Bravo Kahina !</h2>
+            <div class="final-stats">
+                <div class="stat">Hauteur atteinte: <span id="finalScore">0</span>m</div>
+                <div class="stat">Niveau: <span id="finalLevel">1</span></div>
+                <div class="stat">Record: <span id="finalHighScore">0</span>m</div>
             </div>
-            <div class="instructions">
-                <span class="instruction">V: Vision</span>
-                <span class="instruction">R: Recommencer</span>
+            <div class="actions">
+                <button class="action-btn replay-btn" onclick="game.restart()">🔄 Rejouer</button>
+                <button class="action-btn menu-btn" onclick="game.showMenu()">🏠 Menu</button>
             </div>
-        </div>
-
-        <!-- Écran de victoire -->
-        <div class="end-screen win-screen" id="winScreen">
-            <div class="end-content">
-                <h2>🌟 Félicitations Kahina ! 🌟</h2>
-                <p>L'Oracle sacré est retrouvé ! La magie est restaurée dans le royaume.</p>
-                <button class="restart-btn" onclick="game.restart()">Recommencer l'Aventure</button>
-            </div>
-        </div>
-
-        <!-- Écran de défaite -->
-        <div class="end-screen lose-screen" id="loseScreen">
-            <div class="end-content">
-                <h2>💫 Oh non !</h2>
-                <p>Kahina a besoin de plus d'entraînement. Essaie encore !</p>
-                <button class="restart-btn" onclick="game.restart()">Recommencer le Voyage</button>
+            <div class="encouragement">
+                <p>Tu peux faire mieux ! Essaie encore ! ✨</p>
             </div>
         </div>
     </div>
 
-    <!-- Contrôles tactiles pour mobile -->
-    <div class="touch-controls">
-        <button class="touch-btn touch-left" data-key="ArrowLeft">←</button>
-        <button class="touch-btn touch-right" data-key="ArrowRight">→</button>
-        <button class="touch-btn touch-jump" data-key=" ">Sauter</button>
-        <button class="touch-btn touch-vision" data-key="v">Vision</button>
-    </div>
-
-    <div class="controls-info">
-        <p>
-            <span class="key">←</span> <span class="key">→</span> : Déplacer | 
-            <span class="key">Espace</span> : Sauter | 
-            <span class="key">V</span> : Vision | 
-            <span class="key">R</span> : Recommencer
-        </p>
+    <!-- Contrôles -->
+    <div class="controls">
+        <button class="control-btn left-btn" ontouchstart="game.moveLeft(true)" ontouchend="game.moveLeft(false)">
+            ←
+        </button>
+        <button class="control-btn right-btn" ontouchstart="game.moveRight(true)" ontouchend="game.moveRight(false)">
+            →
+        </button>
+        <button class="control-btn jump-btn" ontouchstart="game.jump()">
+            ⬆️
+        </button>
     </div>
 
     <script src="game.js"></script>
